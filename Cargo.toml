@@ -1,23 +1,6 @@
-[package]
-name = "vpn-status"
-version = "0.1.0"
-edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [workspace]
-
-[dependencies]
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
-toml = "0"
-color-eyre = { version="0", optional=true }
-clap = { version = "4.5", features = ["derive"] , optional = true }
-vpn-status-lib = {path="./vpn-status-lib"}
-
-[features]
-default = ["cli"]
-cli = ["clap", "color-eyre"]
+members = ["vpn-status-lib", "vpn-status"]
+resolver = "2"
 
 [profile.release]
 codegen-units = 1
