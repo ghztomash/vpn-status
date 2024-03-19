@@ -24,6 +24,10 @@ pub struct Config {
     pub disabled_style: Option<String>,
     #[arg(short, long)]
     pub config_path: Option<PathBuf>,
+    #[arg(short, long)]
+    pub lookup: bool,
+    #[arg(short = 'p', long)]
+    pub lookup_provider: Option<String>,
 }
 
 impl Default for Config {
@@ -37,6 +41,8 @@ impl Default for Config {
             disabled_color: Some("red".to_string()),
             disabled_style: None,
             config_path: None,
+            lookup: false,
+            lookup_provider: None,
         }
     }
 }
@@ -79,6 +85,10 @@ impl Config {
         }
         if args.disabled_color.is_some() {
             config.disabled_color = args.disabled_color;
+        }
+
+        if args.lookup {
+            config.lookup = args.lookup;
         }
 
         config

@@ -16,6 +16,7 @@ colored = "2"
 color-eyre = { version="0" }
 clap = { version = "4", features = ["derive"] }
 vpn-status-lib = { version = "0", path = "vpn-status-lib" }
+public-ip-address = { version = "0", path = "../public-ip-address" }
 
 [workspace]
 members = ["vpn-status-lib"]
