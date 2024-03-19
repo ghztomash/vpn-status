@@ -1,0 +1,5 @@
+no_color = false
+enabled_string = "󱠽 VPN"
+enabled_color = "green"
+disabled_string = "󰢉"
+disabled_color = "red"
