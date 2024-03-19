@@ -35,7 +35,7 @@ impl Default for Config {
 }
 
 impl Config {
-    pub fn load_config(path: Option<PathBuf>) -> Result<Self> {
+    fn load_config(path: Option<PathBuf>) -> Result<Self> {
         let config: Config = match path {
             Some(path) => confy::load_path(path)?,
             None => confy::load("vpn_status", Some("config"))?,
@@ -45,7 +45,7 @@ impl Config {
         Ok(config)
     }
 
-    pub fn parse_args() -> Self {
+    fn parse_args() -> Self {
         Config::parse()
     }
 

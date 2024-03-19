@@ -10,10 +10,11 @@ fn main() -> Result<()> {
     let config = Config::get();
     let status = get_status()?;
 
+    // get the custom status string if it exists
     let output: String = {
         let custom_status: Option<String> = match status {
-            Status::Enabled => config.enabled_string,
-            Status::Disabled => config.disabled_string,
+            Status::Enabled => config.clone().enabled_string,
+            Status::Disabled => config.clone().disabled_string,
         };
         custom_status.unwrap_or(format!("{}", status))
     };
@@ -21,13 +22,13 @@ fn main() -> Result<()> {
     if config.no_color {
         println!("{}", output);
     } else {
-        let color = if status == vpn_status_lib::Status::Enabled {
-            colored::Color::Green
-        } else {
-            colored::Color::Red
+        // get the custom color if it exists
+        let custom_color = match status {
+            Status::Enabled => config.clone().enabled_color.unwrap_or("green".to_string()),
+            Status::Disabled => config.clone().disabled_color.unwrap_or("red".to_string()),
         };
+        let color = colored::Color::from(custom_color);
         println!("{}", output.color(color));
     }
-
     Ok(())
 }
