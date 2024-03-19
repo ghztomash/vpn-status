@@ -1,31 +1,37 @@
 use clap::Parser;
-use color_eyre::Result;
-use vpn_status_lib as vpn_status;
+use color_eyre::{owo_colors::colored, Result};
+use colored::*;
+use vpn_status_lib::*;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
     #[arg(short, long)]
     boolean: bool,
+    #[arg(short, long)]
+    no_color: bool,
 }
 
 fn main() -> Result<()> {
     let cli = Args::parse();
 
-    // println!("-------------\ndefault_net:");
-    // let default_interface = netdev::get_default_interface().unwrap();
-    // println!(
-    //     "Interface: {:#?}  is_tun(): {}",
-    //     default_interface,
-    //     default_interface.is_tun()
-    // );
+    let status = get_status()?;
 
-    let status = vpn_status::get_status()?;
-
-    if cli.boolean {
-        println!("{}", vpn_status::vpn_enabled()?);
+    let output: String = if cli.boolean {
+        format!("{}", vpn_enabled()?)
     } else {
-        println!("{}", status);
+        format!("{}", status)
+    };
+
+    if cli.no_color {
+        println!("{}", output);
+    } else {
+        let color = if status == vpn_status_lib::Status::Enabled {
+            colored::Color::Green
+        } else {
+            colored::Color::Red
+        };
+        println!("{}", output.color(color));
     }
 
     Ok(())
