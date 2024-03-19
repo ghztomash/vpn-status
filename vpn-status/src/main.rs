@@ -1,29 +1,24 @@
-use clap::Parser;
-use color_eyre::{owo_colors::colored, Result};
+use color_eyre::Result;
 use colored::*;
 use vpn_status_lib::*;
 
-#[derive(Parser, Debug)]
-#[command(version, about, long_about = None)]
-struct Args {
-    #[arg(short, long)]
-    boolean: bool,
-    #[arg(short, long)]
-    no_color: bool,
-}
+mod config;
+use config::Config;
 
 fn main() -> Result<()> {
-    let cli = Args::parse();
-
+    // load the config from file or args
+    let config = Config::get();
     let status = get_status()?;
 
-    let output: String = if cli.boolean {
-        format!("{}", vpn_enabled()?)
-    } else {
-        format!("{}", status)
+    let output: String = {
+        let custom_status: Option<String> = match status {
+            Status::Enabled => config.enabled_string,
+            Status::Disabled => config.disabled_string,
+        };
+        custom_status.unwrap_or(format!("{}", status))
     };
 
-    if cli.no_color {
+    if config.no_color.unwrap_or(false) {
         println!("{}", output);
     } else {
         let color = if status == vpn_status_lib::Status::Enabled {
