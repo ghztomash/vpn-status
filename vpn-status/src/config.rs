@@ -7,8 +7,6 @@ use std::path::PathBuf;
 #[command(version, about, long_about = None)]
 pub struct Config {
     #[arg(short, long)]
-    pub boolean: Option<bool>,
-    #[arg(short, long)]
     pub no_color: Option<bool>,
     #[arg(long)]
     pub enabled_string: Option<String>,
