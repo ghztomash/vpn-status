@@ -9,7 +9,7 @@ pub enum Error {
 
 #[derive(Debug, PartialEq)]
 pub enum Status {
-    Disabled = 0,
+    Disabled,
     Enabled,
 }
 
@@ -35,7 +35,7 @@ pub fn get_status() -> Result<Status, Error> {
     }
 }
 
-pub fn is_vpn_enabled() -> Result<bool, Error> {
+pub fn vpn_enabled() -> Result<bool, Error> {
     if get_status()? == Status::Enabled {
         return Ok(true);
     }
@@ -54,7 +54,7 @@ mod tests {
 
     #[test]
     fn test_enabled() {
-        let result = is_vpn_enabled();
+        let result = vpn_enabled();
         assert!(result.is_ok());
     }
 }
