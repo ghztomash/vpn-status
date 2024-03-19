@@ -18,7 +18,7 @@ fn main() -> Result<()> {
         custom_status.unwrap_or(format!("{}", status))
     };
 
-    if config.no_color.unwrap_or(false) {
+    if config.no_color {
         println!("{}", output);
     } else {
         let color = if status == vpn_status_lib::Status::Enabled {
