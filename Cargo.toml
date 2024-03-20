@@ -1,9 +1,24 @@
+[package]
+name = "vpn-status"
 version = "0.1.0"
 edition = "2021"
 authors = ["Tomash Ghz <ghz.tomash@hotmail.com>"]
+description = "A simple tool to determine whether vpn is enabled"
+repository = "https://github.com/ghztomash/vpn-status"
+keywords = ["vpn", "network", "cli"]
+categories = ["command-line-utilities", "network-programming"]
 license = "MIT OR Apache-2.0"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+confy = "0"
+colored = "2"
+color-eyre = { version="0" }
+clap = { version = "4", features = ["derive"] }
+vpn-status-lib = { version = "0", path = "vpn-status-lib" }
+
 [workspace]
-members = ["vpn-status-lib", "vpn-status"]
+members = ["vpn-status-lib"]
 resolver = "2"
 
 [profile.release]
