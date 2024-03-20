@@ -2,8 +2,12 @@
 name = "vpn-status-lib"
 version = "0.1.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+authors = ["Tomash Ghz <ghz.tomash@hotmail.com>"]
+description = "A simple library to determine whether vpn is enabled"
+repository = "https://github.com/ghztomash/vpn-status"
+keywords = ["vpn", "network"]
+categories = ["network-programming"]
+license = "MIT OR Apache-2.0"
 
 [dependencies]
 thiserror = "1"
