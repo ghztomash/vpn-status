@@ -2,18 +2,18 @@ use std::fmt::Display;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
-pub enum Error {
+pub enum VpnStatusError {
     #[error("Failed getting default interface")]
     DefaultInterface(String),
 }
 
 #[derive(Debug, PartialEq)]
-pub enum Status {
+pub enum VpnStatus {
     Disabled,
     Enabled,
 }
 
-impl Display for Status {
+impl Display for VpnStatus {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match *self {
             Self::Disabled => write!(f, "disabled"),
@@ -22,21 +22,21 @@ impl Display for Status {
     }
 }
 
-pub fn get_status() -> Result<Status, Error> {
+pub fn status() -> Result<VpnStatus, VpnStatusError> {
     match netdev::get_default_interface() {
         Ok(interface) => {
             if interface.is_tun() {
-                Ok(Status::Enabled)
+                Ok(VpnStatus::Enabled)
             } else {
-                Ok(Status::Disabled)
+                Ok(VpnStatus::Disabled)
             }
         }
-        Err(error) => Err(Error::DefaultInterface(error)),
+        Err(error) => Err(VpnStatusError::DefaultInterface(error)),
     }
 }
 
-pub fn vpn_enabled() -> Result<bool, Error> {
-    if get_status()? == Status::Enabled {
+pub fn vpn_enabled() -> Result<bool, VpnStatusError> {
+    if status()? == VpnStatus::Enabled {
         return Ok(true);
     }
     Ok(false)
@@ -48,7 +48,7 @@ mod tests {
 
     #[test]
     fn test_status() {
-        let result = get_status();
+        let result = status();
         assert!(result.is_ok());
     }
 
