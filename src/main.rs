@@ -10,6 +10,10 @@ fn main() -> Result<()> {
     let config = Config::get();
     let status = vpn_status_lib::status()?;
 
+    // TODO: remove
+    #[cfg(debug_assertions)]
+    dbg!(&config);
+
     // get the custom status string if it exists
     let output: String = {
         let custom_status: Option<String> = match status {

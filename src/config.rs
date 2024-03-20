@@ -4,20 +4,21 @@ use serde::{Deserialize, Serialize};
 use std::default::Default;
 use std::path::PathBuf;
 
+// single struct to hold configuration and arguments
 #[derive(Parser, Debug, Serialize, Deserialize, Clone)]
-#[command(version, about, long_about = None)]
+#[command(version, about, long_about)]
 pub struct Config {
     #[arg(short, long)]
     pub no_color: bool,
-    #[arg(long)]
+    #[arg(short, long)]
     pub enabled_string: Option<String>,
     #[arg(long)]
     pub enabled_color: Option<String>,
-    #[arg(long)]
+    #[arg(short, long)]
     pub disabled_string: Option<String>,
     #[arg(long)]
     pub disabled_color: Option<String>,
-    #[arg(long)]
+    #[arg(short, long)]
     pub config_path: Option<PathBuf>,
 }
 
@@ -53,13 +54,12 @@ impl Config {
         let mut config = Config::default();
         // parse cli arguments
         let args = Config::parse_args();
-        dbg!(&args);
 
-        // load config file
+        // load config file, if no path was specified in args use default path
+        // if no file is found at the default path, use default values and save new config file
         if let Ok(config_file) = Config::load_config(args.config_path) {
             config = config_file;
         }
-        dbg!(&config);
 
         // override config file with cli arguments
         if args.enabled_string.is_some() {
@@ -68,11 +68,9 @@ impl Config {
         if args.enabled_color.is_some() {
             config.enabled_color = args.enabled_color;
         }
-
         if args.disabled_string.is_some() {
             config.disabled_string = args.disabled_string;
         }
-
         if args.disabled_color.is_some() {
             config.disabled_color = args.disabled_color;
         }
