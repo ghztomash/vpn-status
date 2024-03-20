@@ -10,5 +10,9 @@ categories = ["network-programming"]
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-thiserror = "1"
-netdev = "0"
+thiserror = "1.0"
+netdev = "0.24"
+
+[[example]]
+name = "basic"
+path = "examples/basic.rs"
