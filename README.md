@@ -1,3 +1,29 @@
+# VPN Status
+
+This CLI application checks the status of a VPN connection.
+
+It is highly customizable and is intended to be used in combination with tools like `zsh` and `tmux` as status indicator.
+## Usage
+
+By default, the application will print the status of the VPN connection to the standard output in color.
+```sh
+vpn-status
+```
+
+## Installation
+
+Install the application with `cargo`:
+```sh 
+cargo install vpn-status
+```
+
+Alternatively, you can build the application from source:
+```sh
+git clone https://github.com/ghztomash/vpn-status.git
+cd vpn-status
+cargo build --release
+cp ./target/release/vpn-status /usr/local/bin
+```
 
 ## Configuration
 
