@@ -1,3 +1,7 @@
+version = "0.1.0"
+edition = "2021"
+authors = ["Tomash Ghz <ghz.tomash@hotmail.com>"]
+license = "MIT OR Apache-2.0"
 [workspace]
 members = ["vpn-status-lib", "vpn-status"]
 resolver = "2"
