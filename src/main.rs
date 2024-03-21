@@ -52,7 +52,7 @@ fn main() -> Result<()> {
     }
 
     if config.lookup {
-        let response = public_ip_address::lookup_with_service(LookupProvider::IfConfig).unwrap();
+        let response = public_ip_address::perform_lookup_with(LookupProvider::IfConfig).unwrap();
         print!(
             " ({}, {})",
             response.city.unwrap_or("".to_string()),
