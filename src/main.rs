@@ -36,6 +36,17 @@ fn main() -> Result<()> {
             VpnStatus::Disabled => config.clone().disabled_color.unwrap_or("red".to_string()),
         };
         let color = colored::Color::from(custom_color);
+
+        // get the custom style if it exists
+        let custom_style = match status {
+            VpnStatus::Enabled => config.clone().enabled_style.unwrap_or("clear".to_string()),
+            VpnStatus::Disabled => config.clone().disabled_style.unwrap_or("clear".to_string()),
+        };
+
+        let style = styles::styles_from_str(&custom_style)?;
+        let output = styles::style(output, style);
+
+        // apply the styles to the output
         println!("{}", output.color(color));
     }
     Ok(())
