@@ -1,9 +1,11 @@
+use args::Args;
 use color_eyre::Result;
 use colored::*;
-use public_ip_address::lookup::LookupProvider;
 use config::Config;
+use public_ip_address::lookup::LookupProvider;
 use vpn_status_lib::VpnStatus;
 
+mod args;
 mod config;
 mod styles;
 
@@ -13,6 +15,7 @@ fn main() -> Result<()> {
 
     // load the config from file or args
     let config = Config::get();
+    let args = Args::parse_args();
     let status = vpn_status_lib::status()?;
 
     // TODO: remove
@@ -28,7 +31,7 @@ fn main() -> Result<()> {
         custom_status.unwrap_or(format!("{}", status))
     };
 
-    if config.no_color {
+    if args.no_style {
         print!("{}", output);
     } else {
         // get the custom color if it exists
@@ -51,7 +54,7 @@ fn main() -> Result<()> {
         print!("{}", output.color(color));
     }
 
-    if config.lookup {
+    if config.lookup.unwrap_or(false) {
         let response = public_ip_address::perform_lookup_with(LookupProvider::IfConfig).unwrap();
         print!(
             " {} {}",
