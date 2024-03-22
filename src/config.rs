@@ -11,7 +11,6 @@ pub struct Config {
     pub enabled_style: Option<StyleConfig>,
     pub disabled_string: Option<String>,
     pub disabled_style: Option<StyleConfig>,
-    pub config_path: Option<PathBuf>,
     pub lookup: Option<bool>,
     pub lookup_providers: Option<Vec<String>>,
 }
@@ -39,7 +38,6 @@ impl Default for Config {
             enabled_style: Some(StyleConfig::new("green")),
             disabled_string: Some("disabled".to_string()),
             disabled_style: Some(StyleConfig::new("red")),
-            config_path: None,
             lookup: None,
             lookup_providers: None,
         }
@@ -57,10 +55,8 @@ impl Config {
         Ok(config)
     }
 
-    pub fn get() -> Self {
+    pub fn get(args: Args) -> Self {
         let mut config = Config::default();
-        // parse cli arguments
-        let args = Args::parse_args();
 
         // load config file, if no path was specified in args use default path
         // if no file is found at the default path, use default values and save new config file

@@ -14,8 +14,8 @@ fn main() -> Result<()> {
     color_eyre::install()?;
 
     // load the config from file or args
-    let config = Config::get();
     let args = Args::parse_args();
+    let config = Config::get(args.clone());
     let status = vpn_status_lib::status()?;
 
     // TODO: remove
@@ -67,7 +67,7 @@ fn main() -> Result<()> {
                 }
             }
             VpnStatus::Disabled => {
-                if let Some(style) = config.enabled_style.clone() {
+                if let Some(style) = config.disabled_style.clone() {
                     if let Some(format) = style.format {
                         format
                     } else {
