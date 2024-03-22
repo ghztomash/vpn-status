@@ -1,5 +1,11 @@
-no_color = false
 enabled_string = "󱠽 VPN enabled"
-enabled_color = "green"
 disabled_string = "󰢉 VPN disabled"
-disabled_color = "blue"
+lookup = false
+
+[enabled_style]
+color = "green"
+format = ["bold", "strikethrough"]
+
+[disabled_style]
+color = "blue"
+format = ["reversed", "italic"]
