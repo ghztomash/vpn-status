@@ -1,11 +1,15 @@
-mod config;
-
 use color_eyre::Result;
 use colored::*;
 use config::Config;
 use vpn_status_lib::VpnStatus;
 
+mod config;
+mod styles;
+
 fn main() -> Result<()> {
+    // install color_eyre error handling
+    color_eyre::install()?;
+
     // load the config from file or args
     let config = Config::get();
     let status = vpn_status_lib::status()?;
