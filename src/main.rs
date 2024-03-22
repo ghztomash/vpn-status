@@ -36,18 +36,51 @@ fn main() -> Result<()> {
     } else {
         // get the custom color if it exists
         let custom_color = match status {
-            VpnStatus::Enabled => config.clone().enabled_color.unwrap_or("green".to_string()),
-            VpnStatus::Disabled => config.clone().disabled_color.unwrap_or("red".to_string()),
+            VpnStatus::Enabled => {
+                if let Some(ref style) = config.enabled_style {
+                    style.color.clone()
+                } else {
+                    "green".to_string()
+                }
+            }
+            VpnStatus::Disabled => {
+                if let Some(ref style) = config.disabled_style {
+                    style.color.clone()
+                } else {
+                    "red".to_string()
+                }
+            }
         };
         let color = colored::Color::from(custom_color);
 
         // get the custom style if it exists
         let custom_style = match status {
-            VpnStatus::Enabled => config.clone().enabled_style.unwrap_or("clear".to_string()),
-            VpnStatus::Disabled => config.clone().disabled_style.unwrap_or("clear".to_string()),
+            VpnStatus::Enabled => {
+                if let Some(style) = config.enabled_style.clone() {
+                    if let Some(format) = style.format {
+                        format
+                    } else {
+                        vec!["clear".to_string()]
+                    }
+                } else {
+                    vec!["clear".to_string()]
+                }
+            }
+            VpnStatus::Disabled => {
+                if let Some(style) = config.enabled_style.clone() {
+                    if let Some(format) = style.format {
+                        format
+                    } else {
+                        vec!["clear".to_string()]
+                    }
+                } else {
+                    vec!["clear".to_string()]
+                }
+            }
         };
 
-        let style = styles::styles_from_str(&custom_style)?;
+        let custom_style: Vec<&str> = custom_style.iter().map(|x| x.as_ref()).collect();
+        let style = styles::styles_from_vec(custom_style)?;
         let output = styles::style(output, style);
 
         // apply the styles to the output

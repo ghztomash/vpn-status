@@ -2,7 +2,7 @@ use clap::Parser;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
-// single struct to hold configuration and arguments
+// Struct to hold arguments
 #[derive(Parser, Debug, Serialize, Deserialize)]
 #[command(version, about, long_about)]
 pub struct Args {

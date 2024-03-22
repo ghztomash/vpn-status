@@ -4,29 +4,37 @@ use colored::Styles;
 use colored::*;
 
 /// Convert a string to an array of Styles enums
-pub fn styles_from_str(src: &str) -> Result<Vec<Styles>> {
-    let src = src.trim().to_lowercase();
-    let values = src.split_whitespace().collect::<Vec<&str>>();
-    if values.is_empty() {
-        return Err(eyre!("style is empty"));
+pub fn styles_from_vec(style_values: Vec<&str>) -> Result<Vec<Styles>> {
+    if style_values.is_empty() {
+        return Err(eyre!("styles are empty"));
     }
     let mut styles = Vec::new();
 
-    for value in values {
-        match value {
-            "clear" => styles.push(Styles::Clear),
-            "bold" => styles.push(Styles::Bold),
-            "dimmed" => styles.push(Styles::Dimmed),
-            "underline" => styles.push(Styles::Underline),
-            "reversed" => styles.push(Styles::Reversed),
-            "italic" => styles.push(Styles::Italic),
-            "blink" => styles.push(Styles::Blink),
-            "hidden" => styles.push(Styles::Hidden),
-            "strikethrough" => styles.push(Styles::Strikethrough),
-            _ => return Err(eyre!("unknown style: {}", value)),
+    for value in style_values {
+        if let Ok(style) = style_from_str(value) {
+            styles.push(style);
         }
     }
     Ok(styles)
+}
+
+/// Convert a string to an Styles enum
+pub fn style_from_str(src: &str) -> Result<Styles> {
+    let src = src.trim().to_lowercase();
+    let src = src.as_str();
+
+    match src {
+        "clear" => Ok(Styles::Clear),
+        "bold" => Ok(Styles::Bold),
+        "dimmed" => Ok(Styles::Dimmed),
+        "underline" => Ok(Styles::Underline),
+        "reversed" => Ok(Styles::Reversed),
+        "italic" => Ok(Styles::Italic),
+        "blink" => Ok(Styles::Blink),
+        "hidden" => Ok(Styles::Hidden),
+        "strikethrough" => Ok(Styles::Strikethrough),
+        _ => Err(eyre!("unknown style: {}", src)),
+    }
 }
 
 /// Applies a Styles to an input string
@@ -54,38 +62,29 @@ mod tests {
 
     #[test]
     fn convert() {
-        let bold = styles_from_str("bold").unwrap();
-        let bold = bold.first().unwrap();
-        assert_eq!(*bold, Styles::Bold);
-        let clear = styles_from_str("clear").unwrap();
-        let clear = clear.first().unwrap();
-        assert_eq!(*clear, Styles::Clear);
-        let dimmed = styles_from_str("dimmed").unwrap();
-        let dimmed = dimmed.first().unwrap();
-        assert_eq!(*dimmed, Styles::Dimmed);
-        let underline = styles_from_str("underline").unwrap();
-        let underline = underline.first().unwrap();
-        assert_eq!(*underline, Styles::Underline);
-        let reversed = styles_from_str("reversed").unwrap();
-        let reversed = reversed.first().unwrap();
-        assert_eq!(*reversed, Styles::Reversed);
-        let italic = styles_from_str("italic").unwrap();
-        let italic = italic.first().unwrap();
-        assert_eq!(*italic, Styles::Italic);
-        let blink = styles_from_str("blink").unwrap();
-        let blink = blink.first().unwrap();
-        assert_eq!(*blink, Styles::Blink);
-        let hidden = styles_from_str("hidden").unwrap();
-        let hidden = hidden.first().unwrap();
-        assert_eq!(*hidden, Styles::Hidden);
-        let strikethrough = styles_from_str("strikethrough").unwrap();
-        let strikethrough = strikethrough.first().unwrap();
-        assert_eq!(*strikethrough, Styles::Strikethrough);
+        let bold = style_from_str("bold").unwrap();
+        assert_eq!(bold, Styles::Bold);
+        let clear = style_from_str("clear").unwrap();
+        assert_eq!(clear, Styles::Clear);
+        let dimmed = style_from_str("dimmed").unwrap();
+        assert_eq!(dimmed, Styles::Dimmed);
+        let underline = style_from_str("underline").unwrap();
+        assert_eq!(underline, Styles::Underline);
+        let reversed = style_from_str("reversed").unwrap();
+        assert_eq!(reversed, Styles::Reversed);
+        let italic = style_from_str("italic").unwrap();
+        assert_eq!(italic, Styles::Italic);
+        let blink = style_from_str("blink").unwrap();
+        assert_eq!(blink, Styles::Blink);
+        let hidden = style_from_str("hidden").unwrap();
+        assert_eq!(hidden, Styles::Hidden);
+        let strikethrough = style_from_str("strikethrough").unwrap();
+        assert_eq!(strikethrough, Styles::Strikethrough);
     }
 
     #[test]
     fn convert_multiple() {
-        let styles = styles_from_str("bold underline").unwrap();
+        let styles = styles_from_vec(vec!["bold", "underline"]).unwrap();
         assert_eq!(styles.len(), 2);
         let bold = styles.first().unwrap();
         assert_eq!(*bold, Styles::Bold);
@@ -95,7 +94,7 @@ mod tests {
 
     #[test]
     fn error() {
-        let result = styles_from_str("unknown");
+        let result = style_from_str("unknown");
         assert!(result.is_err(), "expected an error");
     }
 }

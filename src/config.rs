@@ -4,32 +4,44 @@ use serde::{Deserialize, Serialize};
 use std::default::Default;
 use std::path::PathBuf;
 
-// single struct to hold configuration and arguments
+// Struct to hold configuration
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Config {
     pub enabled_string: Option<String>,
-    pub enabled_color: Option<String>,
-    pub enabled_style: Option<String>, // emphasys
+    pub enabled_style: Option<StyleConfig>,
     pub disabled_string: Option<String>,
-    pub disabled_color: Option<String>,
-    pub disabled_style: Option<String>,
+    pub disabled_style: Option<StyleConfig>,
     pub config_path: Option<PathBuf>,
     pub lookup: Option<bool>,
-    pub lookup_provider: Option<String>,
+    pub lookup_providers: Option<Vec<String>>,
+}
+
+// single struct to hold configuration and arguments
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct StyleConfig {
+    pub color: String,
+    pub format: Option<Vec<String>>,
+}
+
+impl StyleConfig {
+    pub fn new(color: &str) -> Self {
+        Self {
+            color: color.to_string(),
+            format: None,
+        }
+    }
 }
 
 impl Default for Config {
     fn default() -> Self {
         Self {
             enabled_string: Some("enabled".to_string()),
-            enabled_color: Some("green".to_string()),
-            enabled_style: None,
+            enabled_style: Some(StyleConfig::new("green")),
             disabled_string: Some("disabled".to_string()),
-            disabled_color: Some("red".to_string()),
-            disabled_style: None,
+            disabled_style: Some(StyleConfig::new("red")),
             config_path: None,
             lookup: None,
-            lookup_provider: None,
+            lookup_providers: None,
         }
     }
 }
@@ -60,14 +72,22 @@ impl Config {
         if args.enabled_string.is_some() {
             config.enabled_string = args.enabled_string;
         }
-        if args.enabled_color.is_some() {
-            config.enabled_color = args.enabled_color;
+        if let Some(enabled_color) = args.enabled_color {
+            if let Some(ref mut enabled_style) = config.enabled_style {
+                enabled_style.color = enabled_color;
+            } else {
+                config.enabled_style = Some(StyleConfig::new(&enabled_color));
+            }
         }
         if args.disabled_string.is_some() {
             config.disabled_string = args.disabled_string;
         }
-        if args.disabled_color.is_some() {
-            config.disabled_color = args.disabled_color;
+        if let Some(disabled_color) = args.disabled_color {
+            if let Some(ref mut disabled_style) = config.disabled_style {
+                disabled_style.color = disabled_color;
+            } else {
+                config.disabled_style = Some(StyleConfig::new(&disabled_color));
+            }
         }
         if args.lookup {
             config.lookup = Some(args.lookup);
@@ -86,5 +106,6 @@ mod tests {
         let config = Config::load_config(Some(PathBuf::from("configs/bool.toml"))).unwrap();
         assert_eq!(config.enabled_string, Some("true".to_string()));
         assert_eq!(config.disabled_string, Some("false".to_string()));
+        dbg!(&config);
     }
 }
