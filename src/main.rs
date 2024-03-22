@@ -56,7 +56,7 @@ fn main() -> Result<()> {
         print!(
             " ({}, {})",
             response.city.unwrap_or("".to_string()),
-            response.country_iso.unwrap_or("".to_string())
+            response.country_code.unwrap_or("".to_string())
         );
     }
 
