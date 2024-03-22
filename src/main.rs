@@ -1,5 +1,6 @@
 use color_eyre::Result;
 use colored::*;
+use public_ip_address::lookup::LookupProvider;
 use config::Config;
 use vpn_status_lib::VpnStatus;
 
@@ -28,7 +29,7 @@ fn main() -> Result<()> {
     };
 
     if config.no_color {
-        println!("{}", output);
+        print!("{}", output);
     } else {
         // get the custom color if it exists
         let custom_color = match status {
@@ -47,7 +48,18 @@ fn main() -> Result<()> {
         let output = styles::style(output, style);
 
         // apply the styles to the output
-        println!("{}", output.color(color));
+        print!("{}", output.color(color));
     }
+
+    if config.lookup {
+        let response = public_ip_address::perform_lookup_with(LookupProvider::IfConfig).unwrap();
+        print!(
+            " {} {}",
+            response.city.unwrap_or("".to_string()),
+            response.country_code.unwrap_or("".to_string())
+        );
+    }
+
+    println!("");
     Ok(())
 }

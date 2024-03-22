@@ -29,6 +29,7 @@ pub fn styles_from_str(src: &str) -> Result<Vec<Styles>> {
     Ok(styles)
 }
 
+/// Applies a Styles to an input string
 pub fn style(input: String, styles: Vec<Styles>) -> ColoredString {
     let mut input = ColoredString::from(input);
     for style in styles {
