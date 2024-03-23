@@ -23,6 +23,7 @@ pub struct Args {
 }
 
 impl Args {
+    /// Parse CLI arguments.
     pub fn parse_args() -> Self {
         Args::parse()
     }
