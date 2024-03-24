@@ -15,6 +15,11 @@ fn main() -> Result<()> {
 
     // load the config from file or args
     let args = Args::parse_args();
+
+    if args.open_config {
+        return open_config();
+    }
+
     let config = Config::get(args.clone());
     let status = vpn_status_lib::status()?;
 
@@ -97,5 +102,14 @@ fn main() -> Result<()> {
     }
 
     println!("");
+    Ok(())
+}
+
+fn open_config() -> Result<()> {
+    let config_path = confy::get_configuration_file_path("vpn_status", Some("config"))?;
+    println!("Opening default configuration file: {:?}", config_path);
+    let _ = std::process::Command::new("open")
+        .arg(config_path)
+        .output()?;
     Ok(())
 }
