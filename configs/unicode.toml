@@ -1,0 +1,11 @@
+enabled_string = "󱠽 VPN enabled"
+disabled_string = "󰢉 VPN disabled"
+lookup = false
+
+[enabled_style]
+color = "green"
+format = ["bold", "strikethrough"]
+
+[disabled_style]
+color = "blue"
+format = ["reversed", "italic"]

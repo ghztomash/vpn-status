@@ -1,9 +1,11 @@
+use args::Args;
 use color_eyre::Result;
 use colored::*;
-use public_ip_address::lookup::LookupProvider;
 use config::Config;
+use public_ip_address::lookup::LookupProvider;
 use vpn_status_lib::VpnStatus;
 
+mod args;
 mod config;
 mod styles;
 
@@ -12,7 +14,8 @@ fn main() -> Result<()> {
     color_eyre::install()?;
 
     // load the config from file or args
-    let config = Config::get();
+    let args = Args::parse_args();
+    let config = Config::get(args.clone());
     let status = vpn_status_lib::status()?;
 
     // TODO: remove
@@ -28,30 +31,63 @@ fn main() -> Result<()> {
         custom_status.unwrap_or(format!("{}", status))
     };
 
-    if config.no_color {
+    if args.no_style {
         print!("{}", output);
     } else {
         // get the custom color if it exists
         let custom_color = match status {
-            VpnStatus::Enabled => config.clone().enabled_color.unwrap_or("green".to_string()),
-            VpnStatus::Disabled => config.clone().disabled_color.unwrap_or("red".to_string()),
+            VpnStatus::Enabled => {
+                if let Some(ref style) = config.enabled_style {
+                    style.color.clone()
+                } else {
+                    "green".to_string()
+                }
+            }
+            VpnStatus::Disabled => {
+                if let Some(ref style) = config.disabled_style {
+                    style.color.clone()
+                } else {
+                    "red".to_string()
+                }
+            }
         };
         let color = colored::Color::from(custom_color);
 
         // get the custom style if it exists
         let custom_style = match status {
-            VpnStatus::Enabled => config.clone().enabled_style.unwrap_or("clear".to_string()),
-            VpnStatus::Disabled => config.clone().disabled_style.unwrap_or("clear".to_string()),
+            VpnStatus::Enabled => {
+                if let Some(style) = config.enabled_style.clone() {
+                    if let Some(format) = style.format {
+                        format
+                    } else {
+                        vec!["clear".to_string()]
+                    }
+                } else {
+                    vec!["clear".to_string()]
+                }
+            }
+            VpnStatus::Disabled => {
+                if let Some(style) = config.disabled_style.clone() {
+                    if let Some(format) = style.format {
+                        format
+                    } else {
+                        vec!["clear".to_string()]
+                    }
+                } else {
+                    vec!["clear".to_string()]
+                }
+            }
         };
 
-        let style = styles::styles_from_str(&custom_style)?;
+        let custom_style: Vec<&str> = custom_style.iter().map(|x| x.as_ref()).collect();
+        let style = styles::styles_from_vec(custom_style)?;
         let output = styles::style(output, style);
 
         // apply the styles to the output
         print!("{}", output.color(color));
     }
 
-    if config.lookup {
+    if config.lookup.unwrap_or(false) {
         let response = public_ip_address::perform_lookup_with(LookupProvider::IfConfig).unwrap();
         print!(
             " {} {}",
