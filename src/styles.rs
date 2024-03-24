@@ -42,7 +42,7 @@ pub fn style(input: String, styles: Vec<Styles>) -> ColoredString {
     let mut input = ColoredString::from(input);
     for style in styles {
         match style {
-            Styles::Clear => input = ColoredString::from(input),
+            Styles::Clear => (),
             Styles::Bold => input = input.bold(),
             Styles::Dimmed => input = input.dimmed(),
             Styles::Underline => input = input.underline(),

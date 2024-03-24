@@ -11,7 +11,7 @@ impl FromStr for Syntax {
     fn from_str(str: &str) -> Result<Self, Self::Err> {
         match str {
             "status" => Ok(Self::Status),
-            _ => Ok(Self::String(format!("{}", str))),
+            _ => Ok(Self::String(str.to_string())),
         }
     }
 }
