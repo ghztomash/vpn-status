@@ -98,10 +98,21 @@ mod tests {
     use super::*;
 
     #[test]
-    fn load_config() {
+    fn load_bool_config() {
         let config = Config::load_config(Some(PathBuf::from("configs/bool.toml"))).unwrap();
         assert_eq!(config.enabled_string, Some("true".to_string()));
         assert_eq!(config.disabled_string, Some("false".to_string()));
+        dbg!(&config);
+    }
+
+    #[test]
+    fn load_config() {
+        let config = Config::load_config(Some(PathBuf::from("configs/unicode.toml"))).unwrap();
+        assert!(config.enabled_string.is_some());
+        assert!(config.disabled_string.is_some());
+        assert!(config.enabled_style.is_some());
+        assert!(config.disabled_style.is_some());
+        assert!(config.lookup.is_some());
         dbg!(&config);
     }
 }
