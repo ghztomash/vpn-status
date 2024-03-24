@@ -50,8 +50,6 @@ impl Config {
             Some(path) => confy::load_path(path)?,
             None => confy::load("vpn_status", Some("config"))?,
         };
-        let file = confy::get_configuration_file_path("vpn_status", Some("config"))?;
-        println!("default configuration file is: {:#?}", file);
         Ok(config)
     }
 

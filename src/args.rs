@@ -8,6 +8,8 @@ use std::path::PathBuf;
 pub struct Args {
     #[arg(short, long)]
     pub no_style: bool,
+    #[arg(long)]
+    pub open_config: bool,
     #[arg(short, long)]
     pub enabled_string: Option<String>,
     #[arg(long)]
