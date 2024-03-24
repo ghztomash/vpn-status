@@ -105,6 +105,7 @@ fn main() -> Result<()> {
     Ok(())
 }
 
+/// Open the default configuration file in the default editor
 fn open_config() -> Result<()> {
     let config_path = confy::get_configuration_file_path("vpn_status", Some("config"))?;
     println!("Opening default configuration file: {:?}", config_path);
