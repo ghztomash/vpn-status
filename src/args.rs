@@ -18,6 +18,8 @@ pub struct Args {
     pub disabled_string: Option<String>,
     #[arg(long)]
     pub disabled_color: Option<String>,
+    #[arg(long)]
+    pub output_format: Option<String>,
     #[arg(short, long)]
     pub config_path: Option<PathBuf>,
     #[arg(short, long)]

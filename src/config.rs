@@ -4,18 +4,20 @@ use serde::{Deserialize, Serialize};
 use std::default::Default;
 use std::path::PathBuf;
 
-// Struct to hold configuration
+/// Struct to hold configuration
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Config {
     pub enabled_string: Option<String>,
     pub enabled_style: Option<StyleConfig>,
     pub disabled_string: Option<String>,
     pub disabled_style: Option<StyleConfig>,
+    pub output_format: Option<String>,
+    pub output_style: Option<StyleConfig>,
     pub lookup: Option<bool>,
     pub lookup_providers: Option<Vec<String>>,
 }
 
-// single struct to hold configuration and arguments
+/// Output style configuration
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct StyleConfig {
     pub color: String,
@@ -38,6 +40,8 @@ impl Default for Config {
             enabled_style: Some(StyleConfig::new("green")),
             disabled_string: Some("disabled".to_string()),
             disabled_style: Some(StyleConfig::new("red")),
+            output_format: Some("{status}\n".to_string()),
+            output_style: None,
             lookup: None,
             lookup_providers: None,
         }
@@ -82,6 +86,9 @@ impl Config {
             } else {
                 config.disabled_style = Some(StyleConfig::new(&disabled_color));
             }
+        }
+        if args.output_format.is_some() {
+            config.output_format = args.output_format;
         }
         if args.lookup {
             config.lookup = Some(args.lookup);
