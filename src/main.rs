@@ -7,6 +7,7 @@ use vpn_status_lib::VpnStatus;
 
 mod args;
 mod config;
+mod parser;
 mod styles;
 
 fn main() -> Result<()> {
@@ -28,7 +29,7 @@ fn main() -> Result<()> {
     dbg!(&config);
 
     // get the custom status string if it exists
-    let output: String = {
+    let mut status_string: String = {
         let custom_status: Option<String> = match status {
             VpnStatus::Enabled => config.clone().enabled_string,
             VpnStatus::Disabled => config.clone().disabled_string,
@@ -36,9 +37,7 @@ fn main() -> Result<()> {
         custom_status.unwrap_or(format!("{}", status))
     };
 
-    if args.no_style {
-        print!("{}", output);
-    } else {
+    if !args.no_style {
         // get the custom color if it exists
         let custom_color = match status {
             VpnStatus::Enabled => {
@@ -86,22 +85,31 @@ fn main() -> Result<()> {
 
         let custom_style: Vec<&str> = custom_style.iter().map(|x| x.as_ref()).collect();
         let style = styles::styles_from_vec(custom_style)?;
-        let output = styles::style(output, style);
+        let output = styles::style(status_string, style);
 
         // apply the styles to the output
-        print!("{}", output.color(color));
+        status_string = format!("{}", output.color(color));
+    }
+
+    let mut output;
+    // get custom output format if it exists
+    if let Some(format) = config.output_format {
+        output = parser::make_output(parser::parse(&format), &status_string);
+    } else {
+        output = status_string;
     }
 
     if config.lookup.unwrap_or(false) {
         let response = public_ip_address::perform_lookup_with(LookupProvider::IfConfig).unwrap();
-        print!(
-            " {} {}",
+        output = format!(
+            "{} in {} {}",
+            output,
             response.city.unwrap_or("".to_string()),
             response.country_code.unwrap_or("".to_string())
         );
     }
 
-    println!("");
+    print!("{}", output);
     Ok(())
 }
 
