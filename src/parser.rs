@@ -1,5 +1,4 @@
 use std::str::FromStr;
-use color_eyre::Result;
 
 #[derive(Debug, PartialEq)]
 pub enum Syntax {
@@ -19,7 +18,7 @@ impl FromStr for Syntax {
 
 /// Parse output_format into syntax tokens
 pub fn parse(format: &str) -> Vec<Syntax> {
-    let tokens: Vec<&str> = format.trim().split_terminator(&['{', '}']).collect();
+    let tokens: Vec<&str> = format.split_terminator(&['{', '}']).collect();
     let mut output: Vec<Syntax> = Vec::new();
     // TODO: remove
     dbg!(&tokens);
@@ -53,7 +52,11 @@ mod tests {
     #[test]
     fn parse_status_with_text() {
         let format = "VPN is {status}.";
-        let expected_tokens = vec![Syntax::String("VPN is ".to_string()), Syntax::Status, Syntax::String(".".to_string())];
+        let expected_tokens = vec![
+            Syntax::String("VPN is ".to_string()),
+            Syntax::Status,
+            Syntax::String(".".to_string()),
+        ];
         let tokens = parse(format);
         assert_eq!(tokens, expected_tokens);
         let status = "enabled";
