@@ -3,6 +3,9 @@ use std::str::FromStr;
 #[derive(Debug, PartialEq)]
 pub enum Syntax {
     Status,
+    Ip,
+    City,
+    Country,
     String(String),
 }
 
@@ -11,9 +14,20 @@ impl FromStr for Syntax {
     fn from_str(str: &str) -> Result<Self, Self::Err> {
         match str {
             "status" => Ok(Self::Status),
+            "ip" => Ok(Self::Ip),
+            "city" => Ok(Self::City),
+            "country" => Ok(Self::Country),
             _ => Ok(Self::String(str.to_string())),
         }
     }
+}
+
+/// Lookup struct
+#[derive(Debug, Default, PartialEq)]
+pub struct Lookup {
+    pub ip: String,
+    pub city: String,
+    pub country: String,
 }
 
 /// Parse output_format into syntax tokens
@@ -34,11 +48,16 @@ pub fn parse(format: &str) -> Vec<Syntax> {
 }
 
 /// Constructs an output string with given format
-pub fn make_output(input: Vec<Syntax>, status: &str) -> String {
+pub fn make_output(input: Vec<Syntax>, status: &str, lookup: Option<Lookup>) -> String {
     let mut output = String::new();
+    let lookup = lookup.unwrap_or_default();
+
     for i in input {
         match i {
             Syntax::Status => output = format!("{}{}", output, status),
+            Syntax::Ip => output = format!("{}{}", output, lookup.ip),
+            Syntax::City => output = format!("{}{}", output, lookup.city),
+            Syntax::Country => output = format!("{}{}", output, lookup.country),
             Syntax::String(s) => output = format!("{}{}", output, s),
         }
     }
@@ -60,7 +79,7 @@ mod tests {
         let tokens = parse(format);
         assert_eq!(tokens, expected_tokens);
         let status = "enabled";
-        let out = make_output(tokens, status);
+        let out = make_output(tokens, status, None);
         assert_eq!(out, format!("VPN is {status}."));
     }
 
@@ -71,7 +90,7 @@ mod tests {
         let tokens = parse(format);
         assert_eq!(tokens, expected_tokens);
         let status = "enabled";
-        let out = make_output(tokens, status);
+        let out = make_output(tokens, status, None);
         assert_eq!(out, format!("{status}"));
     }
 
@@ -81,7 +100,7 @@ mod tests {
         let expected_tokens = vec![Syntax::String("unknown".to_string())];
         let tokens = parse(format);
         assert_eq!(tokens, expected_tokens);
-        let out = make_output(tokens, "");
+        let out = make_output(tokens, "", None);
         assert_eq!(out, String::from("unknown"));
     }
 

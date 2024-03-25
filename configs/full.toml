@@ -4,7 +4,7 @@ lookup = true
 lookup_providers = ["test"]
 
 output_format = """
-Hello {ip} from {city} {country}. VPN is: {status}!
+Hello {ip} from {city}, {country}. VPN is: {status}!
 """
 
 [output_style]
