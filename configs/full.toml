@@ -9,7 +9,7 @@ Hello {ip} from {city}, {country}. Your VPN is: {status}!
 
 [output_style]
 color = "yellow"
-format = ["italic"]
+format = ["dimmed"]
 
 [enabled_style]
 color = "green"

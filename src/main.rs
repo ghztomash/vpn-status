@@ -43,14 +43,14 @@ fn main() -> Result<()> {
                 if let Some(ref style) = config.enabled_style {
                     style.color.clone()
                 } else {
-                    "green".to_string()
+                    "".to_string()
                 }
             }
             VpnStatus::Disabled => {
                 if let Some(ref style) = config.disabled_style {
                     style.color.clone()
                 } else {
-                    "red".to_string()
+                    "".to_string()
                 }
             }
         };
@@ -62,10 +62,10 @@ fn main() -> Result<()> {
                     if let Some(format) = style.format {
                         format
                     } else {
-                        vec!["clear".to_string()]
+                        vec![]
                     }
                 } else {
-                    vec!["clear".to_string()]
+                    vec![]
                 }
             }
             VpnStatus::Disabled => {
@@ -73,18 +73,16 @@ fn main() -> Result<()> {
                     if let Some(format) = style.format {
                         format
                     } else {
-                        vec!["clear".to_string()]
+                        vec![]
                     }
                 } else {
-                    vec!["clear".to_string()]
+                    vec![]
                 }
             }
         };
 
-        let output = styles::apply_style(status_string, custom_style, &custom_color);
-
         // apply the styles to the output
-        status_string = format!("{}", output);
+        status_string = styles::apply_style(status_string, custom_style, &custom_color);
     }
 
     let output;
@@ -103,10 +101,10 @@ fn main() -> Result<()> {
             if let Some(format) = style.format {
                 format
             } else {
-                vec!["clear".to_string()]
+                vec![]
             }
         } else {
-            vec!["clear".to_string()]
+            vec![]
         };
 
         // TODO: remove unrwap
@@ -129,14 +127,44 @@ fn main() -> Result<()> {
     };
 
     // get custom output format if it exists
-    if let Some(format) = config.output_format {
+    let format = match config.output_format {
+        Some(format) => format,
+        None => {
+            if lookup.is_some() {
+                "{status} - {city}, {country}".to_string()
+            } else {
+                "{status}".to_string()
+            }
+        }
+    };
+
+    if args.no_style {
         output = parser::make_output(parser::parse(&format), &status_string, lookup);
     } else {
-        output = if let Some(lookup) = lookup {
-            format!("{} - {}, {}", status_string, lookup.city, lookup.country)
+        // get custom color
+        let color = if let Some(ref style) = config.output_style {
+            style.color.clone()
         } else {
-            status_string
-        }
+            "".to_string()
+        };
+
+        // get custom style
+        let style = if let Some(style) = config.output_style {
+            if let Some(format) = style.format {
+                format
+            } else {
+                vec![]
+            }
+        } else {
+            vec![]
+        };
+        output = parser::make_output_styled(
+            parser::parse(&format),
+            &status_string,
+            lookup,
+            style,
+            &color,
+        );
     }
 
     print!("{}", output);
