@@ -37,12 +37,15 @@ pub fn style_from_str(src: &str) -> Result<Styles> {
     }
 }
 
-/// Applies a Styles to an input string
-pub fn style(input: String, styles: Vec<Styles>) -> ColoredString {
+/// Applies a Style and color to an input string
+pub fn apply_style(input: String, styles: Vec<String>, color: &str) -> String {
+    let custom_style: Vec<&str> = styles.iter().map(|x| x.as_ref()).collect();
+    let styles = styles_from_vec(custom_style).unwrap_or(vec![]);
+
     let mut input = ColoredString::from(input);
     for style in styles {
         match style {
-            Styles::Clear => input = ColoredString::from(input),
+            Styles::Clear => (),
             Styles::Bold => input = input.bold(),
             Styles::Dimmed => input = input.dimmed(),
             Styles::Underline => input = input.underline(),
@@ -53,7 +56,8 @@ pub fn style(input: String, styles: Vec<Styles>) -> ColoredString {
             Styles::Strikethrough => input = input.strikethrough(),
         }
     }
-    input
+    let color = colored::Color::from(color);
+    input.color(color).to_string()
 }
 
 #[cfg(test)]

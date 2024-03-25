@@ -1,12 +1,12 @@
 use args::Args;
 use color_eyre::Result;
-use colored::*;
 use config::Config;
 use public_ip_address::lookup::LookupProvider;
 use vpn_status_lib::VpnStatus;
 
 mod args;
 mod config;
+mod parser;
 mod styles;
 
 fn main() -> Result<()> {
@@ -28,7 +28,7 @@ fn main() -> Result<()> {
     dbg!(&config);
 
     // get the custom status string if it exists
-    let output: String = {
+    let mut status_string: String = {
         let custom_status: Option<String> = match status {
             VpnStatus::Enabled => config.clone().enabled_string,
             VpnStatus::Disabled => config.clone().disabled_string,
@@ -36,27 +36,24 @@ fn main() -> Result<()> {
         custom_status.unwrap_or(format!("{}", status))
     };
 
-    if args.no_style {
-        print!("{}", output);
-    } else {
+    if !args.no_style {
         // get the custom color if it exists
         let custom_color = match status {
             VpnStatus::Enabled => {
                 if let Some(ref style) = config.enabled_style {
                     style.color.clone()
                 } else {
-                    "green".to_string()
+                    "".to_string()
                 }
             }
             VpnStatus::Disabled => {
                 if let Some(ref style) = config.disabled_style {
                     style.color.clone()
                 } else {
-                    "red".to_string()
+                    "".to_string()
                 }
             }
         };
-        let color = colored::Color::from(custom_color);
 
         // get the custom style if it exists
         let custom_style = match status {
@@ -65,10 +62,10 @@ fn main() -> Result<()> {
                     if let Some(format) = style.format {
                         format
                     } else {
-                        vec!["clear".to_string()]
+                        vec![]
                     }
                 } else {
-                    vec!["clear".to_string()]
+                    vec![]
                 }
             }
             VpnStatus::Disabled => {
@@ -76,32 +73,101 @@ fn main() -> Result<()> {
                     if let Some(format) = style.format {
                         format
                     } else {
-                        vec!["clear".to_string()]
+                        vec![]
                     }
                 } else {
-                    vec!["clear".to_string()]
+                    vec![]
                 }
             }
         };
 
-        let custom_style: Vec<&str> = custom_style.iter().map(|x| x.as_ref()).collect();
-        let style = styles::styles_from_vec(custom_style)?;
-        let output = styles::style(output, style);
-
         // apply the styles to the output
-        print!("{}", output.color(color));
+        status_string = styles::apply_style(status_string, custom_style, &custom_color);
     }
 
-    if config.lookup.unwrap_or(false) {
+    let output;
+
+    // lookup the public ip address if the flag is set
+    let lookup = if config.lookup.unwrap_or(false) {
+        // get custom lookup color
+        let lookup_color = if let Some(ref style) = config.lookup_style {
+            style.color.clone()
+        } else {
+            "".to_string()
+        };
+
+        // get custom lookup style
+        let lookup_style = if let Some(style) = config.lookup_style {
+            if let Some(format) = style.format {
+                format
+            } else {
+                vec![]
+            }
+        } else {
+            vec![]
+        };
+
+        // TODO: remove unrwap
         let response = public_ip_address::perform_lookup_with(LookupProvider::IfConfig).unwrap();
-        print!(
-            " {} {}",
-            response.city.unwrap_or("".to_string()),
-            response.country_code.unwrap_or("".to_string())
+        Some(parser::Lookup {
+            ip: styles::apply_style(response.ip, lookup_style.clone(), &lookup_color),
+            city: styles::apply_style(
+                response.city.unwrap_or("".to_string()),
+                lookup_style.clone(),
+                &lookup_color,
+            ),
+            country: styles::apply_style(
+                response.country_code.unwrap_or("".to_string()),
+                lookup_style.clone(),
+                &lookup_color,
+            ),
+        })
+    } else {
+        None
+    };
+
+    // get custom output format if it exists
+    let format = match config.output_format {
+        Some(format) => format,
+        None => {
+            if lookup.is_some() {
+                "{status} - {city}, {country}".to_string()
+            } else {
+                "{status}".to_string()
+            }
+        }
+    };
+
+    if args.no_style {
+        output = parser::make_output(parser::parse(&format), &status_string, lookup);
+    } else {
+        // get custom color
+        let color = if let Some(ref style) = config.output_style {
+            style.color.clone()
+        } else {
+            "".to_string()
+        };
+
+        // get custom style
+        let style = if let Some(style) = config.output_style {
+            if let Some(format) = style.format {
+                format
+            } else {
+                vec![]
+            }
+        } else {
+            vec![]
+        };
+        output = parser::make_output_styled(
+            parser::parse(&format),
+            &status_string,
+            lookup,
+            style,
+            &color,
         );
     }
 
-    println!("");
+    print!("{}", output);
     Ok(())
 }
 

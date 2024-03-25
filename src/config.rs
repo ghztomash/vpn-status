@@ -4,18 +4,30 @@ use serde::{Deserialize, Serialize};
 use std::default::Default;
 use std::path::PathBuf;
 
-// Struct to hold configuration
+/// Struct to hold configuration
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Config {
+    /// value to display when VPN is enabled
     pub enabled_string: Option<String>,
+    /// style configuration for enabled_string
     pub enabled_style: Option<StyleConfig>,
+    /// value to display when VPN is disabled
     pub disabled_string: Option<String>,
+    /// style configuration for disabled_string
     pub disabled_style: Option<StyleConfig>,
+    /// output format
+    pub output_format: Option<String>,
+    /// style configuration for output_format
+    pub output_style: Option<StyleConfig>,
+    /// enable lookup functionality
     pub lookup: Option<bool>,
+    /// list of lookup providers
     pub lookup_providers: Option<Vec<String>>,
+    /// style configuration for lookup values
+    pub lookup_style: Option<StyleConfig>,
 }
 
-// single struct to hold configuration and arguments
+/// Output style configuration
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct StyleConfig {
     pub color: String,
@@ -38,8 +50,11 @@ impl Default for Config {
             enabled_style: Some(StyleConfig::new("green")),
             disabled_string: Some("disabled".to_string()),
             disabled_style: Some(StyleConfig::new("red")),
-            lookup: None,
+            output_format: None,
+            output_style: None,
+            lookup: Some(false),
             lookup_providers: None,
+            lookup_style: None,
         }
     }
 }
@@ -82,6 +97,9 @@ impl Config {
             } else {
                 config.disabled_style = Some(StyleConfig::new(&disabled_color));
             }
+        }
+        if args.output_format.is_some() {
+            config.output_format = args.output_format;
         }
         if args.lookup {
             config.lookup = Some(args.lookup);

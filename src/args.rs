@@ -2,24 +2,35 @@ use clap::Parser;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
-// Struct to hold arguments
+/// Struct to hold command line arguments
 #[derive(Parser, Debug, Serialize, Deserialize, Clone)]
-#[command(version, about, long_about)]
+#[command(version, about, long_about = None)]
 pub struct Args {
+    /// Do not apply any styles
     #[arg(short, long)]
     pub no_style: bool,
-    #[arg(long)]
+    /// Open the default configuration file
+    #[arg(short = 'O', long)]
     pub open_config: bool,
+    /// Value to display when VPN is enabled
     #[arg(short, long)]
     pub enabled_string: Option<String>,
+    /// Color of enabled_string
     #[arg(long)]
     pub enabled_color: Option<String>,
+    /// Value to display when VPN is disabled
     #[arg(short, long)]
     pub disabled_string: Option<String>,
+    /// Color of disabled_string
     #[arg(long)]
     pub disabled_color: Option<String>,
+    /// Output format
+    #[arg(short = 'f', long)]
+    pub output_format: Option<String>,
+    /// Path to configuration file
     #[arg(short, long)]
     pub config_path: Option<PathBuf>,
+    /// Enable lookup functionality
     #[arg(short, long)]
     pub lookup: bool,
 }
