@@ -23,6 +23,8 @@ pub struct Config {
     pub lookup: Option<bool>,
     /// list of lookup providers
     pub lookup_providers: Option<Vec<String>>,
+    /// style configuration for lookup values
+    pub lookup_style: Option<StyleConfig>,
 }
 
 /// Output style configuration
@@ -50,8 +52,9 @@ impl Default for Config {
             disabled_style: Some(StyleConfig::new("red")),
             output_format: Some("{status}\n".to_string()),
             output_style: None,
-            lookup: None,
+            lookup: Some(false),
             lookup_providers: None,
+            lookup_style: None,
         }
     }
 }
