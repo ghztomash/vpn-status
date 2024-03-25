@@ -1,6 +1,5 @@
 use args::Args;
 use color_eyre::Result;
-use colored::*;
 use config::Config;
 use public_ip_address::lookup::LookupProvider;
 use vpn_status_lib::VpnStatus;
@@ -55,7 +54,6 @@ fn main() -> Result<()> {
                 }
             }
         };
-        let color = colored::Color::from(custom_color);
 
         // get the custom style if it exists
         let custom_style = match status {
@@ -83,24 +81,48 @@ fn main() -> Result<()> {
             }
         };
 
-        let custom_style: Vec<&str> = custom_style.iter().map(|x| x.as_ref()).collect();
-        let style = styles::styles_from_vec(custom_style)?;
-        let output = styles::style(status_string, style);
+        let output = styles::apply_style(status_string, custom_style, &custom_color);
 
         // apply the styles to the output
-        status_string = format!("{}", output.color(color));
+        status_string = format!("{}", output);
     }
 
     let output;
 
     // lookup the public ip address if the flag is set
     let lookup = if config.lookup.unwrap_or(false) {
+        // get custom lookup color
+        let lookup_color = if let Some(ref style) = config.lookup_style {
+            style.color.clone()
+        } else {
+            "".to_string()
+        };
+
+        // get custom lookup style
+        let lookup_style = if let Some(style) = config.lookup_style {
+            if let Some(format) = style.format {
+                format
+            } else {
+                vec!["clear".to_string()]
+            }
+        } else {
+            vec!["clear".to_string()]
+        };
+
         // TODO: remove unrwap
         let response = public_ip_address::perform_lookup_with(LookupProvider::IfConfig).unwrap();
         Some(parser::Lookup {
-            ip: response.ip,
-            city: response.city.unwrap_or("".to_string()),
-            country: response.country_code.unwrap_or("".to_string()),
+            ip: styles::apply_style(response.ip, lookup_style.clone(), &lookup_color),
+            city: styles::apply_style(
+                response.city.unwrap_or("".to_string()),
+                lookup_style.clone(),
+                &lookup_color,
+            ),
+            country: styles::apply_style(
+                response.country_code.unwrap_or("".to_string()),
+                lookup_style.clone(),
+                &lookup_color,
+            ),
         })
     } else {
         None
