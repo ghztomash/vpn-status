@@ -8,7 +8,7 @@ Hello {ip} from {city}, {country}. Your VPN is: {status}!
 """
 
 [output_style]
-color = "blue"
+color = "yellow"
 format = ["italic"]
 
 [enabled_style]
@@ -20,5 +20,5 @@ color = "red"
 format = ["bold"]
 
 [lookup_style]
-color = "yellow"
+color = "blue"
 format = ["underline", "bold"]
