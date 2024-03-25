@@ -91,22 +91,30 @@ fn main() -> Result<()> {
         status_string = format!("{}", output.color(color));
     }
 
-    let mut output;
+    let output;
+
+    // lookup the public ip address if the flag is set
+    let lookup = if config.lookup.unwrap_or(false) {
+        // TODO: remove unrwap
+        let response = public_ip_address::perform_lookup_with(LookupProvider::IfConfig).unwrap();
+        Some(parser::Lookup {
+            ip: response.ip,
+            city: response.city.unwrap_or("".to_string()),
+            country: response.country.unwrap_or("".to_string()),
+        })
+    } else {
+        None
+    };
+
     // get custom output format if it exists
     if let Some(format) = config.output_format {
-        output = parser::make_output(parser::parse(&format), &status_string);
+        output = parser::make_output(parser::parse(&format), &status_string, lookup);
     } else {
-        output = status_string;
-    }
-
-    if config.lookup.unwrap_or(false) {
-        let response = public_ip_address::perform_lookup_with(LookupProvider::IfConfig).unwrap();
-        output = format!(
-            "{} in {} {}",
-            output,
-            response.city.unwrap_or("".to_string()),
-            response.country_code.unwrap_or("".to_string())
-        );
+        output = if let Some(lookup) = lookup {
+            format!("{} {} - {}", status_string, lookup.city, lookup.country)
+        } else {
+            status_string
+        }
     }
 
     print!("{}", output);
