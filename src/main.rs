@@ -100,7 +100,7 @@ fn main() -> Result<()> {
         Some(parser::Lookup {
             ip: response.ip,
             city: response.city.unwrap_or("".to_string()),
-            country: response.country.unwrap_or("".to_string()),
+            country: response.country_code.unwrap_or("".to_string()),
         })
     } else {
         None
@@ -111,7 +111,7 @@ fn main() -> Result<()> {
         output = parser::make_output(parser::parse(&format), &status_string, lookup);
     } else {
         output = if let Some(lookup) = lookup {
-            format!("{} {} - {}", status_string, lookup.city, lookup.country)
+            format!("{} - {}, {}", status_string, lookup.city, lookup.country)
         } else {
             status_string
         }
