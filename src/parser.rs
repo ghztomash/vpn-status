@@ -1,3 +1,4 @@
+use crate::styles;
 use std::str::FromStr;
 
 #[derive(Debug, PartialEq)]
@@ -59,6 +60,31 @@ pub fn make_output(input: Vec<Syntax>, status: &str, lookup: Option<Lookup>) -> 
             Syntax::City => output = format!("{}{}", output, lookup.city),
             Syntax::Country => output = format!("{}{}", output, lookup.country),
             Syntax::String(s) => output = format!("{}{}", output, s),
+        }
+    }
+    output
+}
+
+/// Constructs an output string with given format, where the static strings are styled
+pub fn make_output_styled(
+    input: Vec<Syntax>,
+    status: &str,
+    lookup: Option<Lookup>,
+    style: Vec<String>,
+    color: &str,
+) -> String {
+    let mut output = String::new();
+    let lookup = lookup.unwrap_or_default();
+
+    for i in input {
+        match i {
+            Syntax::Status => output = format!("{}{}", output, status),
+            Syntax::Ip => output = format!("{}{}", output, lookup.ip),
+            Syntax::City => output = format!("{}{}", output, lookup.city),
+            Syntax::Country => output = format!("{}{}", output, lookup.country),
+            Syntax::String(s) => {
+                output = format!("{}{}", output, styles::apply_style(s, style.clone(), color))
+            }
         }
     }
     output
