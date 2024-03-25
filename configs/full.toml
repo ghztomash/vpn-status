@@ -1,0 +1,24 @@
+enabled_string = "enabled"
+disabled_string = "disabled"
+lookup = true
+lookup_providers = ["test"]
+
+output_format = """
+Hello {ip} from {city} {country}. VPN is: {status}!
+"""
+
+[output_style]
+color = "blue"
+format = ["italic"]
+
+[enabled_style]
+color = "green"
+format = ["bold"]
+
+[disabled_style]
+color = "red"
+format = ["bold"]
+
+[lookup_style]
+color = "white"
+format = ["bold"]
