@@ -50,7 +50,7 @@ impl Default for Config {
             enabled_style: Some(StyleConfig::new("green")),
             disabled_string: Some("disabled".to_string()),
             disabled_style: Some(StyleConfig::new("red")),
-            output_format: Some("{status}\n".to_string()),
+            output_format: None,
             output_style: None,
             lookup: Some(false),
             lookup_providers: None,
