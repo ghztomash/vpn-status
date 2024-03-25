@@ -4,7 +4,7 @@ lookup = true
 lookup_providers = ["test"]
 
 output_format = """
-Hello {ip} from {city}, {country}. VPN is: {status}!
+Hello {ip} from {city}, {country}. Your VPN is: {status}!
 """
 
 [output_style]
@@ -20,5 +20,5 @@ color = "red"
 format = ["bold"]
 
 [lookup_style]
-color = "white"
-format = ["bold"]
+color = "yellow"
+format = ["underline", "bold"]
