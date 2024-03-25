@@ -23,7 +23,7 @@ impl FromStr for Syntax {
 }
 
 /// Lookup struct
-#[derive(Debug, Default, PartialEq)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct Lookup {
     pub ip: String,
     pub city: String,
@@ -81,6 +81,38 @@ mod tests {
         let status = "enabled";
         let out = make_output(tokens, status, None);
         assert_eq!(out, format!("VPN is {status}."));
+    }
+
+    #[test]
+    fn parse_status_with_lookup() {
+        let format = "VPN is {status}. From: {city}, {country}.";
+        let expected_tokens = vec![
+            Syntax::String("VPN is ".to_string()),
+            Syntax::Status,
+            Syntax::String(". From: ".to_string()),
+            Syntax::City,
+            Syntax::String(", ".to_string()),
+            Syntax::Country,
+            Syntax::String(".".to_string()),
+        ];
+
+        let lookup = Lookup {
+            ip: "1.1.1.1".to_string(),
+            city: "City".to_string(),
+            country: "Country".to_string(),
+        };
+
+        let tokens = parse(format);
+        assert_eq!(tokens, expected_tokens);
+        let status = "enabled";
+        let out = make_output(tokens, status, Some(lookup.clone()));
+        assert_eq!(
+            out,
+            format!(
+                "VPN is {status}. From: {}, {}.",
+                lookup.city, lookup.country
+            )
+        );
     }
 
     #[test]
