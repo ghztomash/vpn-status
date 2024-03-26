@@ -1,3 +1,6 @@
+![cargo build](https://github.com/ghztomash/vpn-status/actions/workflows/rust.yml/badge.svg)
+![cargo clippy](https://github.com/ghztomash/vpn-status/actions/workflows/rust-clippy.yml/badge.svg)
+
 # VPN Status
 
 This CLI application checks the status of a VPN connection.
