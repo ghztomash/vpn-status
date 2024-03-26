@@ -23,7 +23,7 @@ members = ["vpn-status-lib"]
 resolver = "2"
 
 [profile.release]
-codegen-units = 1
-opt-level = "z"
-lto = "thin"
-strip = "symbols"
+#codegen-units = 1
+#opt-level = "z"
+#lto = "thin"
+#strip = "symbols"

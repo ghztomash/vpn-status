@@ -35,8 +35,6 @@ pub struct Lookup {
 pub fn parse(format: &str) -> Vec<Syntax> {
     let tokens: Vec<&str> = format.split_terminator(&['{', '}']).collect();
     let mut output: Vec<Syntax> = Vec::new();
-    // TODO: remove
-    dbg!(&tokens);
 
     for token in tokens {
         if !token.is_empty() {
@@ -44,6 +42,7 @@ pub fn parse(format: &str) -> Vec<Syntax> {
         }
     }
     // TODO: remove
+    #[cfg(debug_assertions)]
     dbg!(&output);
     output
 }
