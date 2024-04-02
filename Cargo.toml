@@ -13,7 +13,7 @@ license = "MIT OR Apache-2.0"
 serde = { version = "1", features = ["derive"] }
 confy = "0.6"
 colored = "2"
-color-eyre = { version="0" }
+color-eyre = { version="0.6" }
 clap = { version = "4", features = ["derive"] }
 vpn-status-lib = { version = "0.1", path = "./vpn-status-lib" }
 public-ip-address = { version = "0.1", git = "https://github.com/ghztomash/public-ip-address.git" }
