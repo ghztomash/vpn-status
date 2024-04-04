@@ -1,6 +1,7 @@
 use args::Args;
 use color_eyre::Result;
 use config::Config;
+use public_ip_address::lookup::LookupProvider;
 use vpn_status_lib::VpnStatus;
 
 mod args;
@@ -84,8 +85,6 @@ fn main() -> Result<()> {
         status_string = styles::apply_style(status_string, custom_style, &custom_color);
     }
 
-    let output;
-
     // lookup the public ip address if the flag is set
     let lookup = if config.lookup.unwrap_or(false) {
         // get custom lookup color
@@ -106,7 +105,22 @@ fn main() -> Result<()> {
             vec![]
         };
 
-        let response = public_ip_address::perform_lookup()?;
+        // get custom providers list
+        let providers = if let Some(providers) = config.lookup_providers {
+            providers
+                .into_iter()
+                .map(|p| p.parse::<LookupProvider>().unwrap())
+                .collect()
+        } else {
+            vec![]
+        };
+
+        let response = if providers.is_empty() {
+            public_ip_address::perform_lookup()?
+        } else {
+            public_ip_address::perform_cached_lookup_with(providers, Some(2))?
+        };
+
         Some(parser::Lookup {
             ip: styles::apply_style(response.ip, lookup_style.clone(), &lookup_color),
             city: styles::apply_style(
@@ -136,8 +150,8 @@ fn main() -> Result<()> {
         }
     };
 
-    if args.no_style {
-        output = parser::make_output(parser::parse(&format), &status_string, lookup);
+    let output = if args.no_style {
+        parser::make_output(parser::parse(&format), &status_string, lookup)
     } else {
         // get custom color
         let color = if let Some(ref style) = config.output_style {
@@ -156,14 +170,14 @@ fn main() -> Result<()> {
         } else {
             vec![]
         };
-        output = parser::make_output_styled(
+        parser::make_output_styled(
             parser::parse(&format),
             &status_string,
             lookup,
             style,
             &color,
-        );
-    }
+        )
+    };
 
     print!("{}", output);
     Ok(())

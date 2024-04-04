@@ -1,7 +1,7 @@
 enabled_string = "enabled"
 disabled_string = "disabled"
 lookup = true
-lookup_providers = ["test"]
+lookup_providers = ["ipinfo", "ipwhois", "myip"]
 
 output_format = """
 Hello {ip} from {city}, {country}. Your VPN is: {status}!

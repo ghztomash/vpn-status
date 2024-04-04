@@ -40,7 +40,7 @@ pub fn style_from_str(src: &str) -> Result<Styles> {
 /// Applies a Style and color to an input string
 pub fn apply_style(input: String, styles: Vec<String>, color: &str) -> String {
     let custom_style: Vec<&str> = styles.iter().map(|x| x.as_ref()).collect();
-    let styles = styles_from_vec(custom_style).unwrap_or(vec![]);
+    let styles = styles_from_vec(custom_style).unwrap_or_default();
 
     let mut input = ColoredString::from(input);
     for style in styles {

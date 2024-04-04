@@ -1,5 +1,5 @@
-enabled_string = "󱠽 VPN enabled"
-disabled_string = "󰢉 VPN disabled"
+enabled_string = "󱠽 VPN enabled 🔐"
+disabled_string = "󰢉 VPN disabled 🔓"
 lookup = false
 
 [enabled_style]
