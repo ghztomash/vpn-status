@@ -24,6 +24,8 @@ Alternatively, you can build the application from source:
 ```sh
 git clone https://github.com/ghztomash/vpn-status.git
 cd vpn-status
+cargo install vpn-status --path .
+# or
 cargo build --release
 cp ./target/release/vpn-status /usr/local/bin
 ```

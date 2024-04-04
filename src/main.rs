@@ -1,7 +1,6 @@
 use args::Args;
 use color_eyre::Result;
 use config::Config;
-use public_ip_address::lookup::LookupProvider;
 use vpn_status_lib::VpnStatus;
 
 mod args;
@@ -107,8 +106,7 @@ fn main() -> Result<()> {
             vec![]
         };
 
-        // TODO: remove unrwap
-        let response = public_ip_address::perform_lookup_with(LookupProvider::IfConfig).unwrap();
+        let response = public_ip_address::perform_lookup()?;
         Some(parser::Lookup {
             ip: styles::apply_style(response.ip, lookup_style.clone(), &lookup_color),
             city: styles::apply_style(
