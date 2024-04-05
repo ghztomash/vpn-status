@@ -1,12 +1,11 @@
-use color_eyre::eyre::eyre;
-use color_eyre::Result;
+use crate::error::VpnStatusError;
 use colored::Styles;
 use colored::*;
 
 /// Convert a string to an array of Styles enums
-pub fn styles_from_vec(style_values: Vec<&str>) -> Result<Vec<Styles>> {
+pub fn styles_from_vec(style_values: Vec<&str>) -> Result<Vec<Styles>, VpnStatusError> {
     if style_values.is_empty() {
-        return Err(eyre!("styles are empty"));
+        return Err(VpnStatusError::StyleError("styles are empty".to_string()));
     }
     let mut styles = Vec::new();
 
@@ -19,7 +18,7 @@ pub fn styles_from_vec(style_values: Vec<&str>) -> Result<Vec<Styles>> {
 }
 
 /// Convert a string to an Styles enum
-pub fn style_from_str(src: &str) -> Result<Styles> {
+pub fn style_from_str(src: &str) -> Result<Styles, VpnStatusError> {
     let src = src.trim().to_lowercase();
     let src = src.as_str();
 
@@ -33,7 +32,10 @@ pub fn style_from_str(src: &str) -> Result<Styles> {
         "blink" => Ok(Styles::Blink),
         "hidden" => Ok(Styles::Hidden),
         "strikethrough" => Ok(Styles::Strikethrough),
-        _ => Err(eyre!("unknown style: {}", src)),
+        _ => Err(VpnStatusError::StyleError(format!(
+            "unknown style: {}",
+            src
+        ))),
     }
 }
 
