@@ -15,6 +15,9 @@ fn main() -> Result<()> {
         return open_config();
     }
 
+    dbg!(vpn_status_lib::tunnel_name());
+    dbg!(vpn_status_lib::tunnel_address());
+
     let config = config::get(args.clone());
     let output = vpn_status_lib::status_string(config, args.no_style)?;
 

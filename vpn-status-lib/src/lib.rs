@@ -28,6 +28,7 @@ use config::Config;
 use error::VpnStatusError;
 use public_ip_address::lookup::LookupProvider;
 use std::fmt::Display;
+use std::net::IpAddr;
 
 /// VPN configuration status
 #[derive(Debug, PartialEq)]
@@ -67,6 +68,50 @@ pub fn status() -> Result<VpnStatus, VpnStatusError> {
                 Ok(VpnStatus::Enabled)
             } else {
                 Ok(VpnStatus::Disabled)
+            }
+        }
+        Err(error) => Err(VpnStatusError::DefaultInterface(error)),
+    }
+}
+
+pub fn tunnel_name() -> Result<String, VpnStatusError> {
+    match netdev::get_default_interface() {
+        Ok(interface) => {
+            if interface.is_tun() {
+                Ok(interface.name)
+            } else {
+                Err(VpnStatusError::DefaultInterface(
+                    "Default interface is not a tunnel".to_string(),
+                ))
+            }
+        }
+        Err(error) => Err(VpnStatusError::DefaultInterface(error)),
+    }
+}
+
+pub fn tunnel_address() -> Result<IpAddr, VpnStatusError> {
+    match netdev::get_default_interface() {
+        Ok(interface) => {
+            if interface.is_tun() {
+                if !interface.ipv4.is_empty() {
+                    let address = interface.ipv4.first().unwrap();
+                    let address = address.addr.to_string();
+                    let address: IpAddr = address.parse().unwrap();
+                    Ok(address)
+                } else if !interface.ipv6.is_empty() {
+                    let address = interface.ipv6.first().unwrap();
+                    let address = address.addr.to_string();
+                    let address: IpAddr = address.parse().unwrap();
+                    Ok(address)
+                } else {
+                    Err(VpnStatusError::DefaultInterface(
+                        "Tunnel has no address".to_string(),
+                    ))
+                }
+            } else {
+                Err(VpnStatusError::DefaultInterface(
+                    "Default interface is not a tunnel".to_string(),
+                ))
             }
         }
         Err(error) => Err(VpnStatusError::DefaultInterface(error)),
