@@ -5,4 +5,8 @@ use thiserror::Error;
 pub enum VpnStatusError {
     #[error("Failed getting default interface")]
     DefaultInterface(String),
+    #[error("Failed styling")]
+    StyleError(String),
+    #[error("Failed performing lookup")]
+    LookupError(#[from] public_ip_address::error::Error),
 }
