@@ -20,14 +20,9 @@
 //! ```
 
 use std::fmt::Display;
-use thiserror::Error;
 
-/// Error type for VPN status
-#[derive(Error, Debug)]
-pub enum VpnStatusError {
-    #[error("Failed getting default interface")]
-    DefaultInterface(String),
-}
+pub mod error;
+use error::VpnStatusError;
 
 /// VPN configuration status
 #[derive(Debug, PartialEq)]
@@ -91,6 +86,10 @@ pub fn vpn_enabled() -> Result<bool, VpnStatusError> {
         return Ok(true);
     }
     Ok(false)
+}
+
+pub fn status_styled() -> Result<String, VpnStatusError> {
+    unimplemented!();
 }
 
 #[cfg(test)]
