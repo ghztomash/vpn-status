@@ -11,7 +11,7 @@ license = "MIT OR Apache-2.0"
 
 [dependencies]
 thiserror = "1.0"
-netdev = "0.24"
+netdev = "0.25"
 serde = { version = "1", features = ["derive"] }
 public-ip-address = { version = "0.1" }
 colored = "2"
