@@ -26,6 +26,7 @@ pub mod styles;
 
 use config::Config;
 use error::VpnStatusError;
+use log::debug;
 use public_ip_address::lookup::LookupProvider;
 use std::fmt::Display;
 use std::net::IpAddr;
@@ -139,9 +140,7 @@ pub fn vpn_enabled() -> Result<bool, VpnStatusError> {
 }
 
 pub fn status_string(config: Config, no_style: bool) -> Result<String, VpnStatusError> {
-    // TODO: remove
-    #[cfg(debug_assertions)]
-    dbg!(&config);
+    debug!("{:#?}", config);
 
     let status = self::status()?;
 

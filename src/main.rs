@@ -1,5 +1,6 @@
 use args::Args;
 use color_eyre::Result;
+use log::{debug, error};
 
 mod args;
 mod config;
@@ -7,6 +8,8 @@ mod config;
 fn main() -> Result<()> {
     // install color_eyre error handling
     color_eyre::install()?;
+    // install logger
+    env_logger::init();
 
     // load the config from file or args
     let args = Args::parse_args();
@@ -15,8 +18,8 @@ fn main() -> Result<()> {
         return open_config();
     }
 
-    dbg!(vpn_status_lib::tunnel_name());
-    dbg!(vpn_status_lib::tunnel_address());
+    debug!("tunnel_name: {:?}", vpn_status_lib::tunnel_name());
+    debug!("tunnel_address: {:?}", vpn_status_lib::tunnel_address());
 
     let config = config::get(args.clone());
     let output = vpn_status_lib::status_string(config, args.no_style)?;
