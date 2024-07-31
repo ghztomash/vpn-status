@@ -1,6 +1,6 @@
 use crate::styles;
-use std::str::FromStr;
 use log::debug;
+use std::str::FromStr;
 
 #[derive(Debug, PartialEq)]
 pub enum Syntax {
@@ -42,7 +42,7 @@ pub fn parse(format: &str) -> Vec<Syntax> {
             output.push(Syntax::from_str(token).unwrap());
         }
     }
-    debug!("output_format: {:?}",output);
+    debug!("output_format: {:?}", output);
     output
 }
 

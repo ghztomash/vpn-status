@@ -43,6 +43,9 @@ pub fn get(args: Args) -> Config {
             config.disabled_style = Some(StyleConfig::new(&disabled_color));
         }
     }
+    if args.offline_string.is_some() {
+        config.offline_string = args.offline_string;
+    }
     if args.output_format.is_some() {
         config.output_format = args.output_format;
     }

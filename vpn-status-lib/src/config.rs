@@ -12,6 +12,8 @@ pub struct Config {
     pub disabled_string: Option<String>,
     /// style configuration for disabled_string
     pub disabled_style: Option<StyleConfig>,
+    /// value to display when network is offline
+    pub offline_string: Option<String>,
     /// output format
     pub output_format: Option<String>,
     /// style configuration for output_format
@@ -47,6 +49,7 @@ impl Default for Config {
             enabled_style: Some(StyleConfig::new("green")),
             disabled_string: Some("disabled".to_string()),
             disabled_style: Some(StyleConfig::new("red")),
+            offline_string: Some("offline".to_string()),
             output_format: None,
             output_style: None,
             lookup: Some(false),

@@ -36,6 +36,7 @@ use std::net::IpAddr;
 pub enum VpnStatus {
     Disabled,
     Enabled,
+    Offline,
 }
 
 impl Display for VpnStatus {
@@ -43,6 +44,7 @@ impl Display for VpnStatus {
         match *self {
             Self::Disabled => write!(f, "disabled"),
             Self::Enabled => write!(f, "enabled"),
+            Self::Offline => write!(f, "offline"),
         }
     }
 }
@@ -149,6 +151,7 @@ pub fn status_string(config: Config, no_style: bool) -> Result<String, VpnStatus
         let custom_status: Option<String> = match status {
             VpnStatus::Enabled => config.clone().enabled_string,
             VpnStatus::Disabled => config.clone().disabled_string,
+            VpnStatus::Offline => config.clone().offline_string,
         };
         custom_status.unwrap_or(format!("{}", status))
     };
@@ -170,31 +173,27 @@ pub fn status_string(config: Config, no_style: bool) -> Result<String, VpnStatus
                     "".to_string()
                 }
             }
+            VpnStatus::Offline => "".to_string(),
         };
 
         // get the custom style if it exists
         let custom_style = match status {
             VpnStatus::Enabled => {
                 if let Some(style) = config.enabled_style.clone() {
-                    if let Some(format) = style.format {
-                        format
-                    } else {
-                        vec![]
-                    }
+                    style.format.unwrap_or_default()
                 } else {
                     vec![]
                 }
             }
             VpnStatus::Disabled => {
                 if let Some(style) = config.disabled_style.clone() {
-                    if let Some(format) = style.format {
-                        format
-                    } else {
-                        vec![]
-                    }
+                    style.format.unwrap_or_default()
                 } else {
                     vec![]
                 }
+            }
+            VpnStatus::Offline => {
+                vec![]
             }
         };
 
@@ -213,11 +212,7 @@ pub fn status_string(config: Config, no_style: bool) -> Result<String, VpnStatus
 
         // get custom lookup style
         let lookup_style = if let Some(style) = config.lookup_style {
-            if let Some(format) = style.format {
-                format
-            } else {
-                vec![]
-            }
+            style.format.unwrap_or_default()
         } else {
             vec![]
         };
@@ -279,11 +274,7 @@ pub fn status_string(config: Config, no_style: bool) -> Result<String, VpnStatus
 
         // get custom style
         let style = if let Some(style) = config.output_style {
-            if let Some(format) = style.format {
-                format
-            } else {
-                vec![]
-            }
+            style.format.unwrap_or_default()
         } else {
             vec![]
         };

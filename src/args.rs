@@ -24,6 +24,9 @@ pub struct Args {
     /// Color of disabled_string
     #[arg(long)]
     pub disabled_color: Option<String>,
+    /// Value to display when network is offline
+    #[arg(short, long)]
+    pub offline_string: Option<String>,
     /// Output format
     #[arg(short = 'f', long)]
     pub output_format: Option<String>,
@@ -58,6 +61,8 @@ mod tests {
             "inactive",
             "--disabled-color",
             "yellow",
+            "--offline-string",
+            "offline",
         ];
 
         let config = Args::parse_from(args);
@@ -65,5 +70,6 @@ mod tests {
         assert_eq!(config.enabled_color, Some("blue".to_string()));
         assert_eq!(config.disabled_string, Some("inactive".to_string()));
         assert_eq!(config.disabled_color, Some("yellow".to_string()));
+        assert_eq!(config.offline_string, Some("offline".to_string()));
     }
 }

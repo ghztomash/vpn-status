@@ -1,6 +1,6 @@
 use args::Args;
 use color_eyre::Result;
-use log::{debug, error};
+use log::{debug, error, warn};
 
 mod args;
 mod config;
@@ -22,7 +22,19 @@ fn main() -> Result<()> {
     debug!("tunnel_address: {:?}", vpn_status_lib::tunnel_address());
 
     let config = config::get(args.clone());
-    let output = vpn_status_lib::status_string(config, args.no_style)?;
+    let output = match vpn_status_lib::status_string(config, args.no_style) {
+        Ok(v) => v,
+        Err(e) => {
+            warn!("error: {}", e);
+            match e {
+                vpn_status_lib::error::VpnStatusError::DefaultInterface(_) => "offline".to_owned(),
+                _ => {
+                    error!("error: {}", e);
+                    "error".to_owned()
+                }
+            }
+        }
+    };
 
     print!("{}", output);
     Ok(())
