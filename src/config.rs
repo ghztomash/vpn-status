@@ -46,6 +46,16 @@ pub fn get(args: Args) -> Config {
     if args.offline_string.is_some() {
         config.offline_string = args.offline_string;
     }
+    if args.split_tunnel_string.is_some() {
+        config.split_tunnel_string = args.split_tunnel_string;
+    }
+    if let Some(split_tunnel_color) = args.split_tunnel_color {
+        if let Some(ref mut split_tunnel_style) = config.split_tunnel_style {
+            split_tunnel_style.color = split_tunnel_color;
+        } else {
+            config.split_tunnel_style = Some(StyleConfig::new(&split_tunnel_color));
+        }
+    }
     if args.output_format.is_some() {
         config.output_format = args.output_format;
     }

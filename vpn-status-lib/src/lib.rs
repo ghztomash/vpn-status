@@ -28,6 +28,7 @@ use config::Config;
 use error::VpnStatusError;
 use log::debug;
 use public_ip_address::lookup::LookupProvider;
+use std::collections::HashMap;
 use std::fmt::Display;
 use std::net::IpAddr;
 
@@ -36,6 +37,7 @@ use std::net::IpAddr;
 pub enum VpnStatus {
     Disabled,
     Enabled,
+    SplitTunnel,
     Offline,
 }
 
@@ -44,6 +46,7 @@ impl Display for VpnStatus {
         match *self {
             Self::Disabled => write!(f, "disabled"),
             Self::Enabled => write!(f, "enabled"),
+            Self::SplitTunnel => write!(f, "split"),
             Self::Offline => write!(f, "offline"),
         }
     }
@@ -70,6 +73,17 @@ pub fn status() -> Result<VpnStatus, VpnStatusError> {
             if interface.is_tun() {
                 Ok(VpnStatus::Enabled)
             } else {
+                // check for split tunnel get_interfaces
+                for address in all_tunnel_addresses()
+                    .values()
+                    .flat_map(|vec| vec.iter())
+                    .collect::<Vec<&IpAddr>>()
+                {
+                    if address.is_ipv4() {
+                        return Ok(VpnStatus::SplitTunnel);
+                    }
+                }
+                // no tunnels found
                 Ok(VpnStatus::Disabled)
             }
         }
@@ -80,6 +94,7 @@ pub fn status() -> Result<VpnStatus, VpnStatusError> {
     }
 }
 
+/// Get the name of the default tunnel.
 pub fn tunnel_name() -> Result<String, VpnStatusError> {
     match netdev::get_default_interface() {
         Ok(interface) => {
@@ -95,33 +110,87 @@ pub fn tunnel_name() -> Result<String, VpnStatusError> {
     }
 }
 
-pub fn tunnel_address() -> Result<IpAddr, VpnStatusError> {
+/// Get the ip addresses of the default tunnel.
+pub fn tunnel_address() -> Result<Vec<IpAddr>, VpnStatusError> {
+    let mut tunnel_addresses = vec![];
     match netdev::get_default_interface() {
         Ok(interface) => {
             if interface.is_tun() {
                 if !interface.ipv4.is_empty() {
-                    let address = interface.ipv4.first().unwrap();
-                    let address = address.addr.to_string();
-                    let address: IpAddr = address.parse().unwrap();
-                    Ok(address)
+                    for address in interface.ipv4 {
+                        let address = address.addr.to_string();
+                        if let Ok(address) = address.parse() {
+                            tunnel_addresses.push(address);
+                        }
+                    }
                 } else if !interface.ipv6.is_empty() {
-                    let address = interface.ipv6.first().unwrap();
-                    let address = address.addr.to_string();
-                    let address: IpAddr = address.parse().unwrap();
-                    Ok(address)
+                    for address in interface.ipv6 {
+                        let address = address.addr.to_string();
+                        if let Ok(address) = address.parse() {
+                            tunnel_addresses.push(address);
+                        }
+                    }
                 } else {
-                    Err(VpnStatusError::DefaultInterface(
+                    return Err(VpnStatusError::DefaultInterface(
                         "Tunnel has no address".to_string(),
-                    ))
+                    ));
                 }
             } else {
-                Err(VpnStatusError::DefaultInterface(
+                return Err(VpnStatusError::DefaultInterface(
                     "Default interface is not a tunnel".to_string(),
-                ))
+                ));
             }
         }
-        Err(error) => Err(VpnStatusError::DefaultInterface(error)),
+        Err(error) => {
+            return Err(VpnStatusError::DefaultInterface(error));
+        }
     }
+    Ok(tunnel_addresses)
+}
+
+/// Get the names of all tunnel interfaces.
+pub fn all_tunnel_names() -> Vec<String> {
+    let mut tunnel_names = vec![];
+    let interfaces = netdev::get_interfaces();
+
+    for interface in interfaces {
+        if interface.is_tun() {
+            tunnel_names.push(interface.name);
+        }
+    }
+    debug!("{:?}", tunnel_names);
+    tunnel_names
+}
+
+/// Get the a list of all tunnel addresses.
+pub fn all_tunnel_addresses() -> HashMap<String, Vec<IpAddr>> {
+    let mut tunnel_map = HashMap::new();
+    let interfaces = netdev::get_interfaces();
+
+    for interface in interfaces {
+        if interface.is_tun() {
+            let mut tunnel_addresses = vec![];
+            // ipv4 addresses
+            for ip in interface.ipv4 {
+                let address = ip.addr.to_string();
+                if let Ok(address) = address.parse() {
+                    tunnel_addresses.push(address);
+                }
+            }
+            // ipv6 addresses
+            for ip in interface.ipv6 {
+                let address = ip.addr.to_string();
+                if let Ok(address) = address.parse() {
+                    tunnel_addresses.push(address);
+                }
+            }
+            if !tunnel_addresses.is_empty() {
+                tunnel_map.insert(interface.name, tunnel_addresses);
+            }
+        }
+    }
+    debug!("{:#?}", tunnel_map);
+    tunnel_map
 }
 
 /// Get the status of the VPN connection.
@@ -138,10 +207,10 @@ pub fn tunnel_address() -> Result<IpAddr, VpnStatusError> {
 /// # }
 /// ```
 pub fn vpn_enabled() -> Result<bool, VpnStatusError> {
-    if status()? == VpnStatus::Enabled {
-        return Ok(true);
+    match status()? {
+        VpnStatus::Enabled | VpnStatus::SplitTunnel => Ok(true),
+        _ => Ok(false),
     }
-    Ok(false)
 }
 
 pub fn status_string(config: Config, no_style: bool) -> Result<String, VpnStatusError> {
@@ -154,6 +223,7 @@ pub fn status_string(config: Config, no_style: bool) -> Result<String, VpnStatus
         let custom_status: Option<String> = match status {
             VpnStatus::Enabled => config.clone().enabled_string,
             VpnStatus::Disabled => config.clone().disabled_string,
+            VpnStatus::SplitTunnel => config.clone().split_tunnel_string,
             VpnStatus::Offline => config.clone().offline_string,
         };
         custom_status.unwrap_or(format!("{}", status))
@@ -176,13 +246,14 @@ pub fn status_string(config: Config, no_style: bool) -> Result<String, VpnStatus
                     "".to_string()
                 }
             }
-            VpnStatus::Offline => {
-                if let Some(ref style) = config.disabled_style {
+            VpnStatus::SplitTunnel => {
+                if let Some(ref style) = config.split_tunnel_style {
                     style.color.clone()
                 } else {
                     "".to_string()
                 }
             }
+            VpnStatus::Offline => "".to_string(),
         };
 
         // get the custom style if it exists
@@ -201,14 +272,15 @@ pub fn status_string(config: Config, no_style: bool) -> Result<String, VpnStatus
                     vec![]
                 }
             }
-                vec![]
-            }
-            VpnStatus::Offline => {
-                if let Some(style) = config.disabled_style.clone() {
+            VpnStatus::SplitTunnel => {
+                if let Some(style) = config.split_tunnel_style.clone() {
                     style.format.unwrap_or_default()
                 } else {
                     vec![]
                 }
+            }
+            VpnStatus::Offline => {
+                vec![]
             }
         };
 

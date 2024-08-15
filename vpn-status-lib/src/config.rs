@@ -12,6 +12,10 @@ pub struct Config {
     pub disabled_string: Option<String>,
     /// style configuration for disabled_string
     pub disabled_style: Option<StyleConfig>,
+    /// value to display when split tunneling is enabled
+    pub split_tunnel_string: Option<String>,
+    /// style configuration for split_tunnel_string
+    pub split_tunnel_style: Option<StyleConfig>,
     /// value to display when network is offline
     pub offline_string: Option<String>,
     /// output format
@@ -49,6 +53,8 @@ impl Default for Config {
             enabled_style: Some(StyleConfig::new("green")),
             disabled_string: Some("disabled".to_string()),
             disabled_style: Some(StyleConfig::new("red")),
+            split_tunnel_string: Some("split".to_string()),
+            split_tunnel_style: Some(StyleConfig::new("blue")),
             offline_string: Some("offline".to_string()),
             output_format: None,
             output_style: None,

@@ -1,6 +1,6 @@
 use args::Args;
 use color_eyre::Result;
-use log::{debug, error, warn};
+use log::{debug, error};
 
 mod args;
 mod config;

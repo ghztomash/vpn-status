@@ -27,6 +27,12 @@ pub struct Args {
     /// Value to display when network is offline
     #[arg(short, long)]
     pub offline_string: Option<String>,
+    /// Value to display when split tunnel is set
+    #[arg(short, long)]
+    pub split_tunnel_string: Option<String>,
+    /// Color of split_tunnel_string
+    #[arg(long)]
+    pub split_tunnel_color: Option<String>,
     /// Output format
     #[arg(short = 'f', long)]
     pub output_format: Option<String>,
