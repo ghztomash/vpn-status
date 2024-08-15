@@ -25,14 +25,8 @@ fn main() -> Result<()> {
     let output = match vpn_status_lib::status_string(config, args.no_style) {
         Ok(v) => v,
         Err(e) => {
-            warn!("error: {}", e);
-            match e {
-                vpn_status_lib::error::VpnStatusError::DefaultInterface(_) => "offline".to_owned(),
-                _ => {
-                    error!("error: {}", e);
-                    "error".to_owned()
-                }
-            }
+            error!("error: {}", e);
+            "error".to_owned()
         }
     };
 

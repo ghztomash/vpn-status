@@ -73,7 +73,10 @@ pub fn status() -> Result<VpnStatus, VpnStatusError> {
                 Ok(VpnStatus::Disabled)
             }
         }
-        Err(error) => Err(VpnStatusError::DefaultInterface(error)),
+        Err(error) => match error.as_str() {
+            "Local IP address not found" => Ok(VpnStatus::Offline),
+            _ => Err(VpnStatusError::DefaultInterface(error)),
+        },
     }
 }
 
@@ -173,7 +176,13 @@ pub fn status_string(config: Config, no_style: bool) -> Result<String, VpnStatus
                     "".to_string()
                 }
             }
-            VpnStatus::Offline => "".to_string(),
+            VpnStatus::Offline => {
+                if let Some(ref style) = config.disabled_style {
+                    style.color.clone()
+                } else {
+                    "".to_string()
+                }
+            }
         };
 
         // get the custom style if it exists
@@ -192,8 +201,14 @@ pub fn status_string(config: Config, no_style: bool) -> Result<String, VpnStatus
                     vec![]
                 }
             }
-            VpnStatus::Offline => {
                 vec![]
+            }
+            VpnStatus::Offline => {
+                if let Some(style) = config.disabled_style.clone() {
+                    style.format.unwrap_or_default()
+                } else {
+                    vec![]
+                }
             }
         };
 
@@ -202,7 +217,10 @@ pub fn status_string(config: Config, no_style: bool) -> Result<String, VpnStatus
     }
 
     // lookup the public ip address if the flag is set
-    let lookup = if config.lookup.unwrap_or(false) {
+    let lookup = if status == VpnStatus::Offline {
+        // we are offline, no need to lookup
+        None
+    } else if config.lookup.unwrap_or(false) {
         // get custom lookup color
         let lookup_color = if let Some(ref style) = config.lookup_style {
             style.color.clone()
