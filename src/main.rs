@@ -30,7 +30,7 @@ fn main() -> Result<()> {
         }
     };
 
-    print!("{}", output);
+    println!("{}", output);
     Ok(())
 }
 
