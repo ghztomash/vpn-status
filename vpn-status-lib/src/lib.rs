@@ -118,14 +118,14 @@ pub fn tunnel_address() -> Result<Vec<IpAddr>, VpnStatusError> {
             if interface.is_tun() {
                 if !interface.ipv4.is_empty() {
                     for address in interface.ipv4 {
-                        let address = address.addr.to_string();
+                        let address = address.addr().to_string();
                         if let Ok(address) = address.parse() {
                             tunnel_addresses.push(address);
                         }
                     }
                 } else if !interface.ipv6.is_empty() {
                     for address in interface.ipv6 {
-                        let address = address.addr.to_string();
+                        let address = address.addr().to_string();
                         if let Ok(address) = address.parse() {
                             tunnel_addresses.push(address);
                         }
@@ -172,14 +172,14 @@ pub fn all_tunnel_addresses() -> HashMap<String, Vec<IpAddr>> {
             let mut tunnel_addresses = vec![];
             // ipv4 addresses
             for ip in interface.ipv4 {
-                let address = ip.addr.to_string();
+                let address = ip.addr().to_string();
                 if let Ok(address) = address.parse() {
                     tunnel_addresses.push(address);
                 }
             }
             // ipv6 addresses
             for ip in interface.ipv6 {
-                let address = ip.addr.to_string();
+                let address = ip.addr().to_string();
                 if let Ok(address) = address.parse() {
                     tunnel_addresses.push(address);
                 }
@@ -311,20 +311,20 @@ pub fn status_string(config: Config, no_style: bool) -> Result<String, VpnStatus
         let providers = if let Some(providers) = config.lookup_providers {
             providers
                 .into_iter()
-                .map(|p| p.parse::<LookupProvider>().unwrap())
+                .map(|p| (p.parse::<LookupProvider>().unwrap(), None))
                 .collect()
         } else {
             vec![]
         };
 
         let response = if providers.is_empty() {
-            public_ip_address::perform_lookup()?
+            public_ip_address::perform_lookup(None)?
         } else {
-            public_ip_address::perform_cached_lookup_with(providers, Some(2))?
+            public_ip_address::perform_cached_lookup_with(providers, None, Some(2), false)?
         };
 
         Some(parser::Lookup {
-            ip: styles::apply_style(response.ip, lookup_style.clone(), &lookup_color),
+            ip: styles::apply_style(response.ip.to_string(), lookup_style.clone(), &lookup_color),
             city: styles::apply_style(
                 response.city.unwrap_or("".to_string()),
                 lookup_style.clone(),

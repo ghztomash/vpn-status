@@ -10,11 +10,11 @@ categories = ["network-programming"]
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-thiserror = "1.0"
-netdev = "0.24"
+thiserror = "2.0"
+netdev = "0.35"
 serde = { version = "1", features = ["derive"] }
-public-ip-address = { version = "0.1" }
-colored = "2"
+public-ip-address = { version = "0.3", features = ["blocking"] }
+colored = "3"
 log = "0.4"
 
 [[example]]
